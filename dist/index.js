@@ -15,6 +15,7 @@ const server = http_1.default.createServer(function (request, response) {
     response.writeHead(404);
     response.end();
 });
+server;
 const userManager = new UserManager_1.UserManager();
 const store = new InMemoryStore_1.InMemoryStore();
 server.listen(8080, function () {
@@ -22,13 +23,14 @@ server.listen(8080, function () {
 });
 const wsServer = new websocket_1.server({
     httpServer: server,
-    autoAcceptConnections: true
+    autoAcceptConnections: false
 });
 function originIsAllowed(origin) {
     return true;
 }
 wsServer.on('request', function (request) {
     console.log("inside connect");
+    return;
     if (!originIsAllowed(request.origin)) {
         // Make sure we only accept requests from an allowed origin
         request.reject();
@@ -46,8 +48,6 @@ wsServer.on('request', function (request) {
             }
             catch (e) {
             }
-            // console.log('Received Message: ' + message.utf8Data);
-            // connection.sendUTF(message.utf8Data);
         }
     });
     connection.on('close', function (reasonCode, description) {

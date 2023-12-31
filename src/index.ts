@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 import { OutgoingMessage, SupportedMessage as OutgoingSupportedMessages } from "./messages/outgoingMessages";
-import {Message, server as WebSocketServer, connection} from "websocket"
+import {server as WebSocketServer, connection} from "websocket"
 import http from 'http';
 import { UserManager } from "./UserManager";
 import { IncomingMessage, SupportedMessage } from "./messages/incomingMessages";
 import { InMemoryStore } from "./store/InMemoryStore";
-import { OuterExpressionKinds } from "typescript";
 
 const server = http.createServer(function(request: any, response: any) {
     console.log((new Date()) + ' Received request for ' + request.url);
     response.writeHead(404);
     response.end();
 });
+
+server
 
 const userManager = new UserManager();
 const store = new InMemoryStore();
@@ -22,7 +23,7 @@ server.listen(8080, function() {
 
 const wsServer = new WebSocketServer({
     httpServer: server,
-    autoAcceptConnections: true
+    autoAcceptConnections: false
 });
 
 function originIsAllowed(origin: string) {
@@ -49,8 +50,6 @@ wsServer.on('request', function(request) {
             } catch(e) {
 
             }
-            // console.log('Received Message: ' + message.utf8Data);
-            // connection.sendUTF(message.utf8Data);
         }
         
     });
@@ -65,7 +64,7 @@ function messageHandler(ws: connection, message: IncomingMessage) {
     console.log("incoming message " + JSON.stringify(message));
     if(message.type == SupportedMessage.JoinRoom) {
         const payload= message.payload;
-        UserManager.addUser(payload.name, payload.userId, payload.roomId, ws);
+        userManager.addUser(payload.name, payload.userId, payload.roomId, ws);
     }
     if(message.type == SupportedMessage.SendMessage) {
         const payload= message.payload;
@@ -109,6 +108,4 @@ function messageHandler(ws: connection, message: IncomingMessage) {
         }
         userManager.broadcast(payload.roomId, payload.userId, outgoingPayload);
     }
-
-
 }

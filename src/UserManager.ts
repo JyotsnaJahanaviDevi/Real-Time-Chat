@@ -19,7 +19,6 @@ export class UserManager {
         this.rooms = new Map<string, Room>()
     }
 
-    static addUser: any;
     addUser(name: string, userId: string, roomId: string, socket: connection) {
         if(!this.rooms.get(roomId)) {
             this.rooms.set(roomId, {
@@ -40,6 +39,7 @@ export class UserManager {
             users.filter(({id}) => id != userId);
         }
     }
+    
     getUser(roomId: string, userId: string): User | null {
         const user = this.rooms.get(roomId)?.users.find((({id}) => id === userId));
         return user ?? null;
