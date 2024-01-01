@@ -19,10 +19,10 @@ exports.InitMessage = zod_1.default.object({
 exports.UserMessage = zod_1.default.object({
     userId: zod_1.default.string(),
     roomId: zod_1.default.string(),
-    message: zod_1.default.string(),
+    message: zod_1.default.string()
 });
 exports.UpvoteMessage = zod_1.default.object({
     userId: zod_1.default.string(),
     roomId: zod_1.default.string(),
-    chatId: zod_1.default.string(),
+    chatId: zod_1.default.string()
 });

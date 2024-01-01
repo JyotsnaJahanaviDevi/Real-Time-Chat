@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -30,7 +29,6 @@ function originIsAllowed(origin) {
 }
 wsServer.on('request', function (request) {
     console.log("inside connect");
-    return;
     if (!originIsAllowed(request.origin)) {
         // Make sure we only accept requests from an allowed origin
         request.reject();
@@ -40,33 +38,26 @@ wsServer.on('request', function (request) {
     var connection = request.accept('echo-protocol', request.origin);
     console.log((new Date()) + ' Connection accepted.');
     connection.on('message', function (message) {
-        console.log(message);
+        // Todo add rate limitting logic here 
         if (message.type === 'utf8') {
             try {
-                console.log("indie with message" + message.utf8Data);
                 messageHandler(connection, JSON.parse(message.utf8Data));
             }
             catch (e) {
             }
         }
     });
-    connection.on('close', function (reasonCode, description) {
-        console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
-    });
 });
-// type => JOIN_ROOM, message => InitMessage
-//
 function messageHandler(ws, message) {
-    console.log("incoming message " + JSON.stringify(message));
     if (message.type == incomingMessages_1.SupportedMessage.JoinRoom) {
         const payload = message.payload;
-        UserManager_1.UserManager.addUser(payload.name, payload.userId, payload.roomId, ws);
+        userManager.addUser(payload.name, payload.userId, payload.roomId, ws);
     }
-    if (message.type == incomingMessages_1.SupportedMessage.SendMessage) {
+    if (message.type === incomingMessages_1.SupportedMessage.SendMessage) {
         const payload = message.payload;
         const user = userManager.getUser(payload.roomId, payload.userId);
         if (!user) {
-            console.error("USer not found in the db");
+            console.error("User not found in the db");
             return;
         }
         let chat = store.addChat(payload.userId, user.name, payload.roomId, payload.message);
@@ -88,9 +79,11 @@ function messageHandler(ws, message) {
     if (message.type === incomingMessages_1.SupportedMessage.UpvoteMessage) {
         const payload = message.payload;
         const chat = store.upvote(payload.userId, payload.roomId, payload.chatId);
+        console.log("inside upvote");
         if (!chat) {
             return;
         }
+        console.log("inside upvote 2");
         const outgoingPayload = {
             type: outgoingMessages_1.SupportedMessage.UpdateChat,
             payload: {
@@ -99,6 +92,7 @@ function messageHandler(ws, message) {
                 upvotes: chat.upvotes.length
             }
         };
+        console.log("inside upvote 3");
         userManager.broadcast(payload.roomId, payload.userId, outgoingPayload);
     }
 }

@@ -4,5 +4,5 @@ exports.SupportedMessage = void 0;
 var SupportedMessage;
 (function (SupportedMessage) {
     SupportedMessage["AddChat"] = "ADD_CHAT";
-    SupportedMessage["UpdateChat"] = "UpdateChat";
+    SupportedMessage["UpdateChat"] = "UPDATE_CHAT";
 })(SupportedMessage || (exports.SupportedMessage = SupportedMessage = {}));

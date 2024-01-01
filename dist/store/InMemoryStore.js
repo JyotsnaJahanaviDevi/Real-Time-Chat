@@ -12,8 +12,6 @@ class InMemoryStore {
             chats: []
         });
     }
-    // last 50 chats -> limit = 50, offset - 0
-    // limit = 50, offset - 50
     getChats(roomId, limit, offset) {
         const room = this.store.get(roomId);
         if (!room) {
@@ -22,9 +20,12 @@ class InMemoryStore {
         return room.chats.reverse().slice(0, offset).slice(-1 * limit);
     }
     addChat(userId, name, roomId, message) {
+        if (!this.store.get(roomId)) {
+            this.initRoom(roomId);
+        }
         const room = this.store.get(roomId);
         if (!room) {
-            return null;
+            return;
         }
         const chat = {
             id: (globalChatId++).toString(),
@@ -41,8 +42,12 @@ class InMemoryStore {
         if (!room) {
             return;
         }
-        const chat = room.chats.find(({ id }) => id === chatId);
+        // Todo: Make this faster
+        const chat = room.chats.find(({ id }) => id == chatId);
         if (chat) {
+            if (chat.upvotes.find(x => x === userId)) {
+                return chat;
+            }
             chat.upvotes.push(userId);
         }
         return chat;

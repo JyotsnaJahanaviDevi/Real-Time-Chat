@@ -1,12 +1,12 @@
 import { Chat, Store, UserId } from "./Store";
 let globalChatId = 0;
 
-// 1000, 2000 chats
 export interface Room {
     roomId: string;
     chats: Chat[]
 }
-export class InMemoryStore implements Store{
+
+export class InMemoryStore implements Store {
     private store: Map<string, Room>;
 
     constructor() {
@@ -20,22 +20,21 @@ export class InMemoryStore implements Store{
         });
     }
 
-    // last 50 chats -> limit = 50, offset - 0
-    // limit = 50, offset - 50
-
     getChats(roomId: string, limit: number, offset: number) {
         const room = this.store.get(roomId);
-        if(!room) {
+        if (!room) {
             return []
         }
-
         return room.chats.reverse().slice(0, offset).slice(-1 * limit);
     }
 
     addChat(userId: UserId, name: string, roomId: string, message: string) {
+        if (!this.store.get(roomId)) {
+            this.initRoom(roomId);
+        }
         const room = this.store.get(roomId);
-        if(!room) {
-            return null
+        if (!room) {
+            return;
         }
         const chat = {
             id: (globalChatId++).toString(),
@@ -50,12 +49,16 @@ export class InMemoryStore implements Store{
 
     upvote(userId: UserId, roomId: string, chatId: string) {
         const room = this.store.get(roomId);
-        if(!room) {
-            return
+        if (!room) {
+            return 
         }
-        const chat = room.chats.find(({id}) => id === chatId);
+        // Todo: Make this faster
+        const chat = room.chats.find(({id}) => id == chatId);
 
-        if(chat) {
+        if (chat) {
+            if (chat.upvotes.find(x => x === userId)) {
+                return chat;
+            }
             chat.upvotes.push(userId);
         }
         return chat;

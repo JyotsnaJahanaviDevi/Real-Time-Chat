@@ -1,18 +1,18 @@
+
 export type UserId = string;
 
 export interface Chat {
-    id: string; 
+    id: string;
     userId: UserId;
     name: string;
     message: string;
-    upvotes: UserId[]; // who has upvoted what
+    upvotes: UserId[]; // who has upvoited what 
 }
 
 export abstract class Store {
     constructor() {
 
     }
-
     initRoom(roomId: string) {
 
     }
